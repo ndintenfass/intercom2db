@@ -16,8 +16,9 @@ module.exports = function(dp, Promise) {
               .fromRest({
                 query: function(page) {
                   page = page ? page : 1;
-                  console.log('Requesting ' + label + ' : page ' + page);
-                  return this.get('https://api.intercom.io/' + label + '?per_page=50&page=' + page, {
+                  var perpage = 60;
+                  console.log('Requesting up to ' + perpage + ' ' + label + ': page ' + page);
+                  return this.get('https://api.intercom.io/' + label + '?per_page=' + perpage + '&page=' + page, {
                     headers: {
                       Accept: 'application/json'
                     },
@@ -26,6 +27,11 @@ module.exports = function(dp, Promise) {
                   });
                 },
                 resultMapping: function(response) {
+                  if(response.result.type == 'error.list'){
+                    console.log('ERROR IN RESPONSE: ');
+                    console.log(response.result.errors);
+                    label = 'errors';
+                  }
                   return response.result[label];
                 },
                 nextPage: function(response) {
